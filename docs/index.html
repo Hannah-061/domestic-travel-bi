@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>國人國內旅行者組成</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=LXGW+WenKai+TC:wght@700&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #EEF2F4;
+    --surface: #FFFFFF;
+    --ink: #1B2A33;
+    --muted: #56656F;
+    --line: #D3DCE1;
+    --accent: #0F6E78;
+    --accent-soft: #DCEBEC;
+    --warn-bg: #FFF4DB;
+    --warn-ink: #6B4A00;
+    --font: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", "Heiti TC", sans-serif;
+    --font-head: "LXGW WenKai TC", "Kaiti TC", "BiauKai", "DFKai-SB", var(--font);
+    color-scheme: light;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font);
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 1240px; margin: 0 auto; padding-inline: 20px; }
+  .num { font-variant-numeric: tabular-nums; }
+  button, select, input { font: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  /* ---------- 提示列 ---------- */
+  .notice {
+    background: var(--warn-bg); color: var(--warn-ink);
+    border: 1px solid #EBCB7A; border-radius: 8px;
+    padding: 12px 16px; margin: 16px 0 0;
+  }
+
+  /* ---------- 頁首 ---------- */
+  header.hero { padding-block: 40px 28px; }
+  .hero h1 {
+    font-family: var(--font-head);
+    font-weight: 700;
+    font-size: clamp(2rem, 4.4vw, 3.1rem);
+    line-height: 1.25;
+    margin: 0 0 12px;
+    letter-spacing: 0.02em;
+  }
+  .hero .lede { max-width: 46em; color: var(--muted); margin: 0 0 28px; font-size: 1.05rem; }
+  .hero .shift-text { font-size: 1.2rem; font-weight: 500; margin: 0 0 14px; max-width: 40em; }
+
+  .shift { display: grid; gap: 10px; max-width: 980px; }
+  .shift-row { display: grid; grid-template-columns: 4.5em 1fr; align-items: center; gap: 12px; }
+  .shift-year { font-weight: 700; font-size: 1.05rem; }
+  .shift-bar { display: flex; height: 40px; border-radius: 6px; overflow: hidden; background: var(--line); }
+  .shift-seg {
+    display: flex; align-items: center; justify-content: center;
+    color: #fff; font-size: 0.85rem; font-weight: 500; white-space: nowrap; overflow: hidden;
+    border-right: 2px solid var(--bg);
+  }
+  .shift-seg:last-child { border-right: 0; }
+  .keys { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 6px 0 0 calc(4.5em + 12px); font-size: 0.9rem; color: var(--muted); }
+  .key { display: inline-flex; align-items: center; gap: 6px; }
+  .dot { width: 11px; height: 11px; border-radius: 50%; display: inline-block; flex: none; }
+
+  /* ---------- 篩選列 ---------- */
+  .filters {
+    background: var(--surface);
+    border-block: 1px solid var(--line);
+  }
+  .filters .wrap {
+    display: flex; flex-wrap: wrap; align-items: flex-start;
+    gap: 14px 28px; padding-block: 14px;
+  }
+  .fgroup { display: grid; gap: 6px; min-width: 0; }
+  .fgroup > .flabel { font-size: 0.85rem; font-weight: 700; color: var(--muted); }
+  .fgroup.years { flex: 1 1 280px; max-width: 420px; }
+  .fgroup.cats { flex: 2 1 320px; }
+  .year-readout { font-weight: 700; font-size: 1.05rem; }
+  .year-readout small { font-weight: 400; color: var(--muted); font-size: 0.85rem; }
+
+  .range { position: relative; height: 32px; }
+  .range .track, .range .fill { position: absolute; top: 14px; height: 4px; border-radius: 2px; }
+  .range .track { left: 0; right: 0; background: var(--line); }
+  .range .fill { background: var(--accent); }
+  .range input {
+    position: absolute; left: 0; top: 6px; width: 100%; height: 20px; margin: 0;
+    -webkit-appearance: none; appearance: none; background: none; pointer-events: none;
+  }
+  .range input:focus-visible { outline: none; }
+  .range input::-webkit-slider-runnable-track { background: none; height: 20px; }
+  .range input::-moz-range-track { background: none; }
+  .range input::-webkit-slider-thumb {
+    -webkit-appearance: none; pointer-events: auto; cursor: grab;
+    width: 22px; height: 22px; border-radius: 50%; margin-top: -1px;
+    background: var(--surface); border: 3px solid var(--accent);
+  }
+  .range input::-moz-range-thumb {
+    pointer-events: auto; cursor: grab;
+    width: 16px; height: 16px; border-radius: 50%;
+    background: var(--surface); border: 3px solid var(--accent);
+  }
+  .range input:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px var(--accent-soft); }
+  .range input:focus-visible::-moz-range-thumb { box-shadow: 0 0 0 4px var(--accent-soft); }
+  .range-ends { display: flex; justify-content: space-between; font-size: 0.8rem; color: var(--muted); }
+
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--bg); }
+  .seg button {
+    border: 0; background: none; padding: 6px 14px; cursor: pointer; white-space: nowrap;
+  }
+  .seg button + button { border-left: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--accent); color: #fff; font-weight: 500; }
+  .seg.small button { padding: 3px 10px; font-size: 0.85rem; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line); background: var(--surface);
+    border-radius: 999px; padding: 4px 12px; cursor: pointer;
+  }
+  .chip[aria-pressed="true"] { border-color: var(--ink); background: var(--accent-soft); font-weight: 500; }
+  .chip.all[aria-pressed="true"] { border-color: var(--accent); }
+  .fhint { font-size: 0.8rem; color: var(--muted); }
+
+  .reset {
+    align-self: center;
+    border: 1px solid var(--ink); background: var(--surface);
+    border-radius: 8px; padding: 7px 16px; cursor: pointer; font-weight: 500;
+  }
+  .reset:hover { background: var(--ink); color: #fff; }
+
+  /* ---------- 摘要 ---------- */
+  .summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 0; margin: 24px 0 0;
+    border: 1px solid var(--line); border-radius: 10px; background: var(--surface);
+  }
+  .summary > div { padding: 12px 16px; border-right: 1px solid var(--line); min-width: 0; }
+  .summary > div:last-child { border-right: 0; }
+  .summary dt { font-size: 0.82rem; color: var(--muted); }
+  .summary dd { margin: 2px 0 0; font-weight: 500; overflow-wrap: anywhere; }
+  @media (max-width: 720px) {
+    .summary > div { border-right: 0; border-bottom: 1px solid var(--line); }
+    .summary > div:last-child { border-bottom: 0; }
+  }
+
+  /* ---------- 圖表卡片 ---------- */
+  .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin: 20px 0 0; }
+  @media (min-width: 900px) { .grid { grid-template-columns: 1fr 1fr; } }
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 18px 14px; min-width: 0; display: flex; flex-direction: column;
+  }
+  .card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 8px 12px; }
+  .card h2 { font-size: 1.2rem; margin: 0; line-height: 1.4; }
+  .card .sub { font-size: 0.9rem; color: var(--muted); margin: 2px 0 0; }
+  .card .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  .card .tools label { font-size: 0.85rem; color: var(--muted); }
+  .card .tools select { border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; background: var(--surface); }
+  .chart-box { position: relative; margin-top: 8px; }
+  .chart { width: 100%; height: 360px; }
+  @media (max-width: 600px) { .chart { height: 300px; } }
+  .empty {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    text-align: center; padding: 20px; color: var(--muted); background: var(--surface);
+  }
+  .foot { font-size: 0.82rem; color: var(--muted); margin: 6px 0 0; }
+
+  /* ---------- 資料表 ---------- */
+  .table-card { margin: 20px 0 0; }
+  .table-scroll { overflow: auto; max-height: 460px; margin-top: 10px; border: 1px solid var(--line); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 0.95rem; }
+  th, td { padding: 7px 12px; text-align: left; border-bottom: 1px solid var(--line); }
+  th { position: sticky; top: 0; background: var(--accent-soft); font-weight: 700; z-index: 1; }
+  td.r, th.r { text-align: right; }
+  tbody tr:nth-child(even) { background: #F7F9FA; }
+
+  /* ---------- 頁尾 ---------- */
+  footer { margin: 32px 0 0; padding-block: 24px 40px; border-top: 1px solid var(--line); color: var(--muted); font-size: 0.92rem; }
+  footer h2 { font-size: 1.05rem; color: var(--ink); margin: 0 0 8px; }
+  footer dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; max-width: 60em; }
+  footer dt { font-weight: 700; color: var(--ink); }
+  footer dd { margin: 0; }
+  footer a { color: var(--accent); }
+  @media (max-width: 600px) {
+    footer dl { grid-template-columns: 1fr; }
+    footer dd { margin-bottom: 8px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <p class="notice" id="fatal" role="alert" hidden></p>
+  <p class="notice" id="ec-fail" role="alert" hidden>
+    圖表元件 ECharts 無法載入，圖表需要網路連線才能顯示。請確認網路連線後重新整理頁面。下方的篩選摘要與資料表不需要網路，仍可使用。
+  </p>
+
+  <header class="hero">
+    <h1 id="title">國人國內旅行者是誰？</h1>
+    <p class="lede" id="lede"></p>
+    <p class="shift-text" id="shift-text"></p>
+    <div class="shift" id="shift" aria-label="首末年度年齡組成比較"></div>
+    <div class="keys" id="shift-keys"></div>
+  </header>
+</div>
+
+<section class="filters" aria-label="全域篩選">
+  <div class="wrap">
+    <div class="fgroup years">
+      <span class="flabel" id="yr-label">年份範圍</span>
+      <div class="year-readout num" id="yr-readout"></div>
+      <div class="range" role="group" aria-labelledby="yr-label">
+        <div class="track"></div>
+        <div class="fill" id="yr-fill"></div>
+        <input type="range" id="yr-lo" aria-label="起始年份">
+        <input type="range" id="yr-hi" aria-label="結束年份">
+      </div>
+      <div class="range-ends num"><span id="yr-min"></span><span id="yr-max"></span></div>
+    </div>
+
+    <div class="fgroup">
+      <span class="flabel">統計維度</span>
+      <div class="seg" id="dim-seg" role="group" aria-label="統計維度"></div>
+    </div>
+
+    <div class="fgroup cats">
+      <span class="flabel">類別</span>
+      <div class="chips" id="cat-chips" role="group" aria-label="類別篩選"></div>
+      <span class="fhint">可複選；都不選時視為全部類別。</span>
+    </div>
+
+    <div class="fgroup">
+      <span class="flabel">顯示方式</span>
+      <div class="seg" id="mode-seg" role="group" aria-label="顯示方式">
+        <button type="button" data-mode="yearly">逐年比較</button>
+        <button type="button" data-mode="avg">整體組成</button>
+      </div>
+      <span class="fhint" id="mode-hint"></span>
+    </div>
+
+    <button type="button" class="reset" id="reset">重設篩選</button>
+  </div>
+</section>
+
+<main class="wrap">
+  <dl class="summary" id="summary" aria-live="polite"></dl>
+
+  <div class="grid">
+    <article class="card" data-card="c1">
+      <div class="card-head">
+        <div>
+          <h2 id="c1-title">組成</h2>
+          <p class="sub" id="c1-sub"></p>
+        </div>
+        <div class="tools">
+          <span id="rep-wrap"><label for="rep-year">代表年份</label> <select id="rep-year"></select></span>
+          <div class="seg small" role="group" aria-label="圖表類型">
+            <button type="button" data-type="pie">環圈圖</button>
+            <button type="button" data-type="bar">長條圖</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-box"><div class="chart" id="c1-chart"></div><div class="empty" hidden></div></div>
+      <p class="foot" id="c1-foot"></p>
+    </article>
+
+    <article class="card" data-card="c2">
+      <div class="card-head">
+        <div>
+          <h2>各類別百分比趨勢</h2>
+          <p class="sub" id="c2-sub"></p>
+        </div>
+        <div class="tools">
+          <div class="seg small" role="group" aria-label="圖表類型">
+            <button type="button" data-type="line">折線圖</button>
+            <button type="button" data-type="bar">長條圖</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-box"><div class="chart" id="c2-chart"></div><div class="empty" hidden></div></div>
+      <p class="foot">X 軸只列出有資料的年份，1997、1999、2001 之間不是相隔一年。</p>
+    </article>
+
+    <article class="card" data-card="c3">
+      <div class="card-head">
+        <div>
+          <h2>各年度組成比較</h2>
+          <p class="sub" id="c3-sub"></p>
+        </div>
+        <div class="tools">
+          <div class="seg small" role="group" aria-label="圖表類型">
+            <button type="button" data-type="bar">堆疊長條</button>
+            <button type="button" data-type="area">堆疊面積</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-box"><div class="chart" id="c3-chart"></div><div class="empty" hidden></div></div>
+      <p class="foot">每個年度依原始百分比堆疊；只選部分類別時，堆疊高度不會到 100%。</p>
+    </article>
+
+    <article class="card" data-card="c4">
+      <div class="card-head">
+        <div>
+          <h2>平均占比高低排序</h2>
+          <p class="sub" id="c4-sub"></p>
+        </div>
+        <div class="tools">
+          <div class="seg small" role="group" aria-label="圖表類型">
+            <button type="button" data-type="bar">橫向長條</button>
+            <button type="button" data-type="dot">點圖</button>
+          </div>
+        </div>
+      </div>
+      <div class="chart-box"><div class="chart" id="c4-chart"></div><div class="empty" hidden></div></div>
+      <p class="foot">平均＝所選年份的年度百分比算術平均；數值相同時依原表分類順序排列。</p>
+    </article>
+  </div>
+
+  <section class="card table-card" aria-labelledby="tbl-title">
+    <div class="card-head">
+      <div>
+        <h2 id="tbl-title">原始統計資料</h2>
+        <p class="sub" id="tbl-sub"></p>
+      </div>
+    </div>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr><th>西元年</th><th>民國年</th><th>統計維度</th><th>分類</th><th class="r">百分比（%）</th></tr>
+        </thead>
+        <tbody id="tbl-body"></tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <h2>資料來源與說明</h2>
+    <dl id="source"></dl>
+  </div>
+</footer>
+
+<script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  const $ = (s, root) => (root || document).querySelector(s);
+  const $$ = (s, root) => Array.from((root || document).querySelectorAll(s));
+  const esc = s => String(s).replace(/[&<>"']/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+
+  const D = window.TRAVEL_DATA;
+  if (!D || !Array.isArray(D.rows) || !D.meta) {
+    const f = $("#fatal");
+    f.textContent = "找不到 data.js 的資料（window.TRAVEL_DATA）。請確認 data.js 與 index.html 放在同一個資料夾；若檔案遺失，請執行 uv run work/build_data.py 重新產生。";
+    f.hidden = false;
+    $(".filters").hidden = true;
+    $("main").hidden = true;
+    return;
+  }
+
+  // ---------- 資料 ----------
+  const META = D.meta;
+  const ROWS = D.rows;
+  const YEARS = META.years.slice();
+  const DIMS = META.dimensions.slice();
+  const CATS = META.categories;
+  const GITHUB_URL = "https://github.com/Hannah-061/domestic-travel-bi";
+
+  const lookup = new Map();
+  const rocOf = new Map();
+  ROWS.forEach(r => {
+    lookup.set(r.year + "|" + r.dimension + "|" + r.category, r.percent);
+    rocOf.set(r.year, r.roc_year);
+  });
+  const val = (y, d, c) => lookup.get(y + "|" + d + "|" + c);
+
+  const COLORS = {
+    "男": "#2E6DB4", "女": "#C9506F",
+    "12-19": "#D9962B", "20-29": "#7FA637", "30-39": "#2A9486",
+    "40-49": "#3B78C4", "50-59": "#6D5BC4", "60以上": "#A8457F"
+  };
+  const color = c => COLORS[c] || "#7A8A94";
+  const catLabel = c => (/^\d/.test(c) ? c + " 歲" : c).replace("60以上 歲", "60 歲以上");
+  const fmt = (v, digits) => (v == null || isNaN(v)) ? "—" : Number(v).toFixed(digits);
+
+  // ---------- 狀態 ----------
+  const DEFAULTS = { lo: 0, hi: YEARS.length - 1, dim: DIMS.includes("年齡") ? "年齡" : DIMS[0], mode: "yearly" };
+  const state = {
+    lo: DEFAULTS.lo, hi: DEFAULTS.hi, dim: DEFAULTS.dim, mode: DEFAULTS.mode,
+    cats: new Set(), repYear: YEARS[YEARS.length - 1],
+    types: { c1: "pie", c2: "line", c3: "bar", c4: "bar" }
+  };
+  const selYears = () => YEARS.slice(state.lo, state.hi + 1);
+  const selCats = () => CATS[state.dim].filter(c => state.cats.size === 0 || state.cats.has(c));
+  const avgOf = c => {
+    const vs = selYears().map(y => val(y, state.dim, c)).filter(v => v != null);
+    return vs.length ? vs.reduce((a, b) => a + b, 0) / vs.length : null;
+  };
+  const rangeText = () => {
+    const ys = selYears();
+    return ys.length === 1 ? ys[0] + " 年" : ys[0] + "–" + ys[ys.length - 1] + " 年";
+  };
+
+  // ---------- 頁首 ----------
+  function renderHero() {
+    $("#title").textContent = "國人國內旅行者是誰？";
+    $("#lede").textContent = META.title + "（" + META.title_en + "）。" + META.description +
+      "，單位為百分比；呈現的是旅行者的組成，不是旅遊人數或人次。";
+
+    const first = YEARS[0], last = YEARS[YEARS.length - 1];
+    const ages = CATS["年齡"] || [];
+    const oldest = ages[ages.length - 1], youngest = ages[0];
+    const o1 = val(first, "年齡", oldest), o2 = val(last, "年齡", oldest);
+    const y1 = val(first, "年齡", youngest), y2 = val(last, "年齡", youngest);
+    if ([o1, o2, y1, y2].every(v => v != null)) {
+      const verb = (a, b) => b > a ? "增加到" : b < a ? "降到" : "維持在";
+      $("#shift-text").textContent =
+        catLabel(oldest) + "的旅行者，從 " + first + " 年的 " + fmt(o1, 1) + "% " + verb(o1, o2) + " " + last + " 年的 " + fmt(o2, 1) + "%；" +
+        catLabel(youngest) + "則從 " + fmt(y1, 1) + "% " + verb(y1, y2) + " " + fmt(y2, 1) + "%。";
+    }
+
+    $("#shift").innerHTML = [first, last].map(y => {
+      const segs = ages.map(c => {
+        const v = val(y, "年齡", c);
+        if (v == null) return "";
+        const text = v >= 6 ? fmt(v, 1) + "%" : "";
+        return '<div class="shift-seg num" style="flex:0 0 ' + v + '%;background:' + color(c) + '" title="' +
+          esc(y + " 年 " + catLabel(c) + "：" + fmt(v, 1) + "%") + '">' + text + "</div>";
+      }).join("");
+      return '<div class="shift-row"><span class="shift-year num">' + y + '</span><div class="shift-bar">' + segs + "</div></div>";
+    }).join("");
+    $("#shift-keys").innerHTML = ages.map(c =>
+      '<span class="key"><span class="dot" style="background:' + color(c) + '"></span>' + esc(catLabel(c)) + "</span>").join("");
+  }
+
+  // ---------- 篩選列 ----------
+  const lo = $("#yr-lo"), hi = $("#yr-hi");
+  [lo, hi].forEach(inp => { inp.min = 0; inp.max = YEARS.length - 1; inp.step = 1; });
+  $("#yr-min").textContent = YEARS[0];
+  $("#yr-max").textContent = YEARS[YEARS.length - 1];
+
+  function syncYearUI() {
+    lo.value = state.lo; hi.value = state.hi;
+    const n = YEARS.length - 1;
+    $("#yr-fill").style.left = (state.lo / n * 100) + "%";
+    $("#yr-fill").style.right = (100 - state.hi / n * 100) + "%";
+    lo.style.zIndex = state.lo === n ? 3 : 2;
+    hi.style.zIndex = 2;
+    lo.setAttribute("aria-valuetext", YEARS[state.lo] + " 年");
+    hi.setAttribute("aria-valuetext", YEARS[state.hi] + " 年");
+    $("#yr-readout").innerHTML = esc(rangeText()) + " <small>（" + selYears().length + " 個有資料的年份）</small>";
+  }
+  lo.addEventListener("input", () => { state.lo = Math.min(+lo.value, state.hi); render(); });
+  hi.addEventListener("input", () => { state.hi = Math.max(+hi.value, state.lo); render(); });
+
+  $("#dim-seg").innerHTML = DIMS.map(d => '<button type="button" data-dim="' + esc(d) + '">' + esc(d) + "</button>").join("");
+  $("#dim-seg").addEventListener("click", e => {
+    const b = e.target.closest("button[data-dim]");
+    if (!b || b.dataset.dim === state.dim) return;
+    state.dim = b.dataset.dim;
+    state.cats.clear();
+    render();
+  });
+
+  function renderChips() {
+    const all = '<button type="button" class="chip all" data-cat="" aria-pressed="' + (state.cats.size === 0) + '">全部</button>';
+    $("#cat-chips").innerHTML = all + CATS[state.dim].map(c =>
+      '<button type="button" class="chip" data-cat="' + esc(c) + '" aria-pressed="' + state.cats.has(c) + '">' +
+      '<span class="dot" style="background:' + color(c) + '"></span>' + esc(catLabel(c)) + "</button>").join("");
+  }
+  $("#cat-chips").addEventListener("click", e => {
+    const b = e.target.closest("button[data-cat]");
+    if (!b) return;
+    const c = b.dataset.cat;
+    if (!c) state.cats.clear();
+    else if (state.cats.has(c)) state.cats.delete(c);
+    else state.cats.add(c);
+    if (state.cats.size === CATS[state.dim].length) state.cats.clear();
+    render();
+  });
+
+  $("#mode-seg").addEventListener("click", e => {
+    const b = e.target.closest("button[data-mode]");
+    if (!b || b.dataset.mode === state.mode) return;
+    state.mode = b.dataset.mode;
+    render();
+  });
+
+  $("#reset").addEventListener("click", () => {
+    state.lo = DEFAULTS.lo; state.hi = DEFAULTS.hi; state.dim = DEFAULTS.dim; state.mode = DEFAULTS.mode;
+    state.cats.clear();
+    state.repYear = YEARS[YEARS.length - 1];
+    render();
+  });
+
+  $("#rep-year").addEventListener("change", e => { state.repYear = +e.target.value; render(); });
+
+  $$(".card[data-card]").forEach(card => {
+    const id = card.dataset.card;
+    card.addEventListener("click", e => {
+      const b = e.target.closest(".tools button[data-type]");
+      if (!b || state.types[id] === b.dataset.type) return;
+      state.types[id] = b.dataset.type;
+      render();
+    });
+  });
+
+  // ---------- 圖表 ----------
+  const hasEC = typeof window.echarts !== "undefined";
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const FONT = getComputedStyle(document.documentElement).getPropertyValue("--font").trim();
+  const charts = {};
+
+  if (hasEC) {
+    ["c1", "c2", "c3", "c4"].forEach(id => { charts[id] = echarts.init(document.getElementById(id + "-chart")); });
+    const resizeAll = () => Object.values(charts).forEach(c => c.resize());
+    window.addEventListener("resize", resizeAll);
+    if ("ResizeObserver" in window) {
+      const ro = new ResizeObserver(resizeAll);
+      $$(".chart").forEach(el => ro.observe(el));
+    }
+  } else {
+    $("#ec-fail").hidden = false;
+    $$(".chart-box .empty").forEach(el => {
+      el.textContent = "圖表需要網路連線才能載入 ECharts，目前無法顯示。";
+      el.hidden = false;
+    });
+  }
+
+  function setEmpty(id, msg) {
+    const box = $("#" + id + "-chart").parentElement.querySelector(".empty");
+    if (!hasEC) return true;
+    box.hidden = !msg;
+    box.textContent = msg || "";
+    return !!msg;
+  }
+
+  const AXIS_STYLE = {
+    axisLine: { lineStyle: { color: "#9AA8B0" } },
+    axisLabel: { color: "#3C4A53", fontSize: 13 },
+    splitLine: { lineStyle: { color: "#E3E9EC" } }
+  };
+  function base() {
+    return {
+      animation: !reduceMotion,
+      animationDurationUpdate: 700,
+      textStyle: { fontFamily: FONT, fontSize: 14, color: "#1B2A33" },
+      grid: [{ left: 12, right: 24, top: 48, bottom: 12, containLabel: true }],
+      tooltip: { confine: true, textStyle: { fontSize: 14 } }
+    };
+  }
+  const pctAxis = extra => Object.assign({}, AXIS_STYLE, {
+    type: "value", min: 0,
+    axisLabel: { formatter: "{value}%", color: "#3C4A53", fontSize: 13 }
+  }, extra || {});
+  const catAxis = (data, extra) => Object.assign({ type: "category", data: data.map(String) }, AXIS_STYLE, extra || {});
+  const legend = names => [{ top: 0, type: "scroll", icon: "circle", itemWidth: 12, itemHeight: 12, textStyle: { fontSize: 13 }, data: names }];
+
+  function yearAxisTip(digits) {
+    return params => {
+      if (!params.length) return "";
+      const y = Number(params[0].axisValue);
+      const head = rocOf.has(y) ? y + " 年（民國 " + rocOf.get(y) + " 年）" : esc(params[0].axisValue);
+      return "<b>" + head + "</b><br>" + params.map(p =>
+        p.marker + esc(catLabel(p.seriesName)) + "：" + fmt(p.value, digits) + "%").join("<br>");
+    };
+  }
+  function apply(id, opt) {
+    charts[id].setOption(opt, { replaceMerge: ["series", "xAxis", "yAxis", "legend"] });
+  }
+
+  function drawC1(cats) {
+    const avg = state.mode === "avg";
+    const ys = selYears();
+    if (!ys.includes(state.repYear)) state.repYear = ys[ys.length - 1];
+    $("#rep-wrap").hidden = avg;
+    $("#rep-year").innerHTML = ys.map(y => '<option value="' + y + '"' + (y === state.repYear ? " selected" : "") + ">" + y + " 年</option>").join("");
+
+    const digits = avg ? 2 : 1;
+    const data = cats.map(c => ({
+      name: c,
+      value: avg ? avgOf(c) : val(state.repYear, state.dim, c),
+      itemStyle: { color: color(c) }
+    })).filter(d => d.value != null);
+
+    $("#c1-title").textContent = "國內旅行者" + state.dim + "組成";
+    $("#c1-sub").textContent = avg
+      ? rangeText() + "平均組成（年度百分比的算術平均）"
+      : state.repYear + " 年（民國 " + rocOf.get(state.repYear) + " 年）的組成";
+    $("#c1-foot").textContent = cats.length < CATS[state.dim].length
+      ? "只顯示所選類別；環圈圖的扇形依所選類別彼此的相對大小繪製，標籤數字是原始百分比。"
+      : "標籤數字是原始百分比；各類別加總可能因原表四捨五入而略偏離 100%。";
+
+    if (setEmpty("c1", data.length ? "" : "目前的篩選條件沒有資料，請調整年份或類別。")) return;
+    const label = p => catLabel(p.name) + "\n" + fmt(p.value, digits) + "%";
+    const tip = { trigger: "item", formatter: p => p.marker + esc(catLabel(p.name)) + "：" + fmt(p.value, digits) + "%" + (avg ? "（" + rangeText() + "平均）" : "") };
+    const opt = base();
+    opt.tooltip = Object.assign(opt.tooltip, tip);
+    opt.legend = [];
+    if (state.types.c1 === "pie") {
+      opt.xAxis = []; opt.yAxis = [];
+      opt.series = [{
+        id: "c1", type: "pie", radius: ["40%", "68%"], center: ["50%", "54%"],
+        data, label: { formatter: label, fontSize: 14, lineHeight: 20 },
+        labelLine: { length: 12, length2: 10 },
+        itemStyle: { borderColor: "#fff", borderWidth: 2 },
+        universalTransition: { enabled: true }
+      }];
+    } else {
+      opt.xAxis = [catAxis(data.map(d => catLabel(d.name)))];
+      opt.yAxis = [pctAxis()];
+      opt.series = [{
+        id: "c1", type: "bar", data, barMaxWidth: 56,
+        label: { show: true, position: "top", formatter: p => fmt(p.value, digits) + "%", fontSize: 13 },
+        universalTransition: { enabled: true }
+      }];
+    }
+    apply("c1", opt);
+  }
+
+  function drawC2(cats) {
+    const ys = selYears();
+    const type = state.types.c2 === "bar" ? "bar" : "line";
+    const opt = base();
+    if (state.mode === "yearly") {
+      $("#c2-sub").textContent = rangeText() + "各類別的年度百分比";
+      if (setEmpty("c2", cats.length && ys.length ? "" : "目前的篩選條件沒有資料，請調整年份或類別。")) return;
+      opt.legend = legend(cats);
+      opt.tooltip = Object.assign(opt.tooltip, { trigger: "axis", formatter: yearAxisTip(1) });
+      opt.xAxis = [catAxis(ys, { boundaryGap: type === "bar" })];
+      opt.yAxis = [pctAxis()];
+      opt.series = cats.map(c => ({
+        id: "s-" + c, name: c, type,
+        data: ys.map(y => val(y, state.dim, c) ?? null),
+        itemStyle: { color: color(c) }, lineStyle: { width: 2.5, color: color(c) },
+        symbolSize: 7, barMaxWidth: 18, emphasis: { focus: "series" },
+        universalTransition: { enabled: true }
+      }));
+    } else {
+      $("#c2-sub").textContent = rangeText() + "各類別的期間平均百分比（年度百分比的算術平均）";
+      const data = cats.map(c => ({ name: c, value: avgOf(c), itemStyle: { color: color(c) } })).filter(d => d.value != null);
+      if (setEmpty("c2", data.length ? "" : "目前的篩選條件沒有資料，請調整年份或類別。")) return;
+      opt.legend = [];
+      opt.tooltip = Object.assign(opt.tooltip, {
+        trigger: "item",
+        formatter: p => p.marker + esc(catLabel(p.name)) + "：" + fmt(p.value, 2) + "%（" + rangeText() + "平均）"
+      });
+      opt.xAxis = [catAxis(data.map(d => catLabel(d.name)), { boundaryGap: true })];
+      opt.yAxis = [pctAxis()];
+      opt.series = [{
+        id: "avg", name: "期間平均", type, data,
+        lineStyle: { color: "#9AA8B0", width: 2 }, symbolSize: 12, barMaxWidth: 56,
+        label: { show: true, position: "top", formatter: p => fmt(p.value, 2) + "%", fontSize: 13 },
+        universalTransition: { enabled: true }
+      }];
+    }
+    apply("c2", opt);
+  }
+
+  function drawC3(cats) {
+    const ys = selYears();
+    $("#c3-sub").textContent = rangeText() + "每年的" + state.dim + "組成（原始年度百分比）";
+    if (setEmpty("c3", cats.length && ys.length ? "" : "目前的篩選條件沒有資料，請調整年份或類別。")) return;
+    const area = state.types.c3 === "area";
+    const opt = base();
+    opt.legend = legend(cats);
+    opt.tooltip = Object.assign(opt.tooltip, { trigger: "axis", formatter: yearAxisTip(1) });
+    opt.xAxis = [catAxis(ys, { boundaryGap: !area })];
+    opt.yAxis = [pctAxis({ max: 100 })];
+    opt.series = cats.map(c => ({
+      id: "k-" + c, name: c, type: area ? "line" : "bar", stack: "total",
+      data: ys.map(y => val(y, state.dim, c) ?? null),
+      itemStyle: { color: color(c) },
+      lineStyle: { width: 1, color: color(c) },
+      areaStyle: area ? { color: color(c), opacity: 0.9 } : undefined,
+      showSymbol: false, barMaxWidth: 34, emphasis: { focus: "series" },
+      universalTransition: { enabled: true }
+    }));
+    apply("c3", opt);
+  }
+
+  function drawC4(cats) {
+    const order = new Map(CATS[state.dim].map((c, i) => [c, i]));
+    const ranked = cats.map(c => ({ c, v: avgOf(c) })).filter(d => d.v != null)
+      .sort((a, b) => (b.v - a.v) || (order.get(a.c) - order.get(b.c)));
+    $("#c4-sub").textContent = rangeText() + "（" + selYears().length + " 個年份）各類別平均百分比，由高到低";
+    if (setEmpty("c4", ranked.length ? "" : "目前的篩選條件沒有資料，請調整年份或類別。")) return;
+    const dot = state.types.c4 === "dot";
+    const opt = base();
+    opt.legend = [];
+    opt.grid = [{ left: 12, right: 64, top: 28, bottom: 12, containLabel: true }];
+    opt.tooltip = Object.assign(opt.tooltip, {
+      trigger: "item",
+      formatter: p => p.marker + esc(catLabel(p.name)) + "<br>" + rangeText() + "平均：" + fmt(p.value, 2) + "%"
+    });
+    opt.yAxis = [catAxis(ranked.map(d => d.c), { inverse: true, axisLabel: { color: "#3C4A53", fontSize: 14, formatter: v => catLabel(v) } })];
+    opt.xAxis = [pctAxis({ name: "" })];
+    opt.series = [{
+      id: "rank", type: dot ? "scatter" : "bar",
+      data: ranked.map(d => ({ name: d.c, value: d.v, itemStyle: { color: color(d.c) } })),
+      symbolSize: 18, barMaxWidth: 26,
+      label: { show: true, position: "right", formatter: p => fmt(p.value, 2) + "%", fontSize: 13 },
+      universalTransition: { enabled: true }
+    }];
+    apply("c4", opt);
+  }
+
+  // ---------- 摘要與資料表 ----------
+  function renderSummary(cats) {
+    const n = ROWS.filter(r => r.dimension === state.dim && cats.includes(r.category) &&
+      r.year >= YEARS[state.lo] && r.year <= YEARS[state.hi]).length;
+    const all = cats.length === CATS[state.dim].length;
+    const items = [
+      ["年份區間", rangeText() + "（" + selYears().length + " 個年份）"],
+      ["統計維度", state.dim],
+      ["納入類別", all ? "全部 " + cats.length + " 類" : cats.map(catLabel).join("、")],
+      ["資料筆數", n + " 筆（共 " + ROWS.length + " 筆）"],
+      ["計算方式", state.mode === "avg" ? "整體組成：各年度百分比的算術平均" : "逐年比較：直接使用原始年度百分比"]
+    ];
+    $("#summary").innerHTML = items.map(([k, v]) => "<div><dt>" + k + "</dt><dd>" + esc(v) + "</dd></div>").join("");
+    $("#mode-hint").textContent = state.mode === "avg"
+      ? "整體組成是年度百分比的算術平均，不是以旅遊人數加總後計算的比例。"
+      : "逐年顯示原始年度百分比。";
+  }
+
+  function renderTable(cats) {
+    const order = new Map(CATS[state.dim].map((c, i) => [c, i]));
+    const y0 = YEARS[state.lo], y1 = YEARS[state.hi];
+    const rows = ROWS.filter(r => r.dimension === state.dim && cats.includes(r.category) && r.year >= y0 && r.year <= y1)
+      .sort((a, b) => (a.year - b.year) || (order.get(a.category) - order.get(b.category)));
+    $("#tbl-sub").textContent = "依目前篩選條件列出 " + rows.length + " 筆原始資料（未經任何計算）。";
+    $("#tbl-body").innerHTML = rows.length
+      ? rows.map(r => '<tr><td class="num">' + r.year + '</td><td class="num">' + r.roc_year + "</td><td>" + esc(r.dimension) +
+          "</td><td>" + esc(catLabel(r.category)) + '</td><td class="r num">' + fmt(r.percent, 1) + "</td></tr>").join("")
+      : '<tr><td colspan="5">目前的篩選條件沒有資料，請調整年份或類別。</td></tr>';
+  }
+
+  function renderSource() {
+    const ys = YEARS;
+    const missing = [];
+    for (let y = ys[0]; y <= ys[ys.length - 1]; y++) if (!ys.includes(y)) missing.push(y);
+    const runs = [];
+    ys.forEach(y => {
+      const last = runs[runs.length - 1];
+      if (last && y === last[1] + 1) last[1] = y; else runs.push([y, y]);
+    });
+    const period = runs.map(([a, b]) => a === b ? a : a + "～" + b).join("、") + " 年";
+    const items = [
+      ["資料名稱", "國人國內旅行統計（" + META.title + "）"],
+      ["資料期間", period + "，共 " + ys.length + " 個年份"],
+      ["原始檔案", META.source_file],
+      ["原表註記", META.source_note],
+      ["統計單位", "百分比（%）"],
+      ["資料性質", "呈現各年度國內旅行者的性別與年齡組成比例，不是實際旅遊人數或人次；百分比不能直接換算成人數。"],
+      ["缺漏年份", missing.length ? missing.join("、") + " 年沒有資料，圖表不補值。" : "無"],
+      ["專案原始碼", '<a href="' + GITHUB_URL + '" target="_blank" rel="noopener">' + GITHUB_URL + "</a>（可下載原始資料與轉換程式）"]
+    ];
+    $("#source").innerHTML = items.map(([k, v], i) =>
+      "<dt>" + k + "</dt><dd>" + (i === items.length - 1 ? v : esc(v)) + "</dd>").join("");
+  }
+
+  // ---------- 整體更新 ----------
+  function syncButtons() {
+    $$("#dim-seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.dim === state.dim));
+    $$("#mode-seg button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === state.mode));
+    $$(".card[data-card]").forEach(card => {
+      const t = state.types[card.dataset.card];
+      $$(".tools button[data-type]", card).forEach(b => b.setAttribute("aria-pressed", b.dataset.type === t));
+    });
+  }
+
+  function render() {
+    const cats = selCats();
+    syncYearUI();
+    syncButtons();
+    renderChips();
+    renderSummary(cats);
+    renderTable(cats);
+    if (hasEC) {
+      drawC1(cats); drawC2(cats); drawC3(cats); drawC4(cats);
+    } else {
+      $("#c1-title").textContent = "國內旅行者" + state.dim + "組成";
+    }
+  }
+
+  renderHero();
+  renderSource();
+  render();
+})();
+</script>
+</body>
+</html>
